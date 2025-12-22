@@ -43,9 +43,12 @@ class ConcertsToScheduleConvertor:
         for concert in self.concerts_:
             new_concert = '\n'
             try:
-                new_concert += f"{concert['concert']['datetime']}: {concert['concert']['concertTitle']}\n"
-                new_concert += f"price: {concert['minPrice']['value']}{concert['minPrice']['currency']}\n"
-                new_concert += f"city: {concert['concert']['city']}\n"
+                new_concert +=\
+                    f"{concert['concert']['datetime']}: {concert['concert']['concertTitle']}\n"
+                new_concert +=\
+                    f"price: {concert['minPrice']['value']}{concert['minPrice']['currency']}\n"
+                new_concert +=\
+                    f"city: {concert['concert']['city']}\n"
             except KeyError:
                 pass
             schedule += new_concert
