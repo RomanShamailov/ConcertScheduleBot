@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 from typing import Any
-from .request_data import RequestData
+from ConcertScheduleBot.infrastructure.request_data import RequestData
 from datetime import datetime
 
 

@@ -47,8 +47,8 @@ def test_concerts_to_schedule_happy_path():
         {
             "concert": {
                 "datetime": "2025-01-01T20:00:00",
-                "concertTitle": "Live Show",
-                "city": "Moscow",
+                "concertTitle": "Дора",
+                "city": "Москва",
             },
             "minPrice": {"value": 1000, "currency": "RUB"},
         }
@@ -56,9 +56,10 @@ def test_concerts_to_schedule_happy_path():
 
     schedule = ConcertsToScheduleConvertor(concerts).schedule()
 
-    assert "2025-01-01T20:00:00: Live Show" in schedule
-    assert "price: 1000RUB" in schedule
-    assert "city: Moscow" in schedule
+    assert "🕒 01.01.2025 20:00" in schedule
+    assert "🎤 Дора" in schedule
+    assert "🌍 Москва" in schedule
+    assert "💵 Цена: 1000 RUB" in schedule
 
 
 def test_concerts_to_schedule_with_invalid_concert():
@@ -66,4 +67,4 @@ def test_concerts_to_schedule_with_invalid_concert():
 
     schedule = ConcertsToScheduleConvertor(concerts).schedule()
 
-    assert schedule.strip() == ""
+    assert schedule.strip() == "Список концертов"

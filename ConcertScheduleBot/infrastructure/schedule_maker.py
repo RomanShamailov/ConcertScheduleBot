@@ -1,9 +1,9 @@
 import aiohttp
 import asyncio
 from typing import Any
-from .parser import Parser
-from .request_data import RequestData
-from ..adapters.conversions_for_parsing import (
+from ConcertScheduleBot.infrastructure.parser import Parser
+from ConcertScheduleBot.infrastructure.request_data import RequestData
+from ConcertScheduleBot.adapters.conversions_for_parsing import (
     PlaylistUrlToApiConvertor,
     TracksToArtistsIdsConvertor,
     ConcertsToScheduleConvertor,

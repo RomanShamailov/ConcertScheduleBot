@@ -1,4 +1,5 @@
 from typing import Any
+from datetime import datetime
 
 
 class UrlTemplates:
@@ -32,18 +33,36 @@ class TracksToArtistsIdsConvertor:
 
 
 class ConcertsToScheduleConvertor:
-    def __init__(self, concerts: list[dict[str, Any]]):
+    def __init__(self, concerts):
         self.concerts_ = concerts
 
     def schedule(self) -> str:
-        schedule = ""
+        lines = ["Список концертов"]
+
         for concert in self.concerts_:
-            new_concert = "\n"
             try:
-                new_concert += f"{concert['concert']['datetime']}: {concert['concert']['concertTitle']}\n"
-                new_concert += f"price: {concert['minPrice']['value']}{concert['minPrice']['currency']}\n"
-                new_concert += f"city: {concert['concert']['city']}\n"
+                dt = datetime.fromisoformat(concert["concert"]["datetime"])
+                title = concert["concert"]["concertTitle"]
+                city = concert["concert"]["city"]
+
+                price_block = "Цена: неизвестна"
+                if "minPrice" in concert:
+                    price_block = (
+                        f"Цена: {concert['minPrice']['value']} "
+                        f"{concert['minPrice']['currency']}"
+                    )
+
+                lines.append(
+                    "\n".join(
+                        [
+                            f"🕒 {dt:%d.%m.%Y %H:%M}",
+                            f"🎤 {title}",
+                            f"🌍 {city}",
+                            f"💵 {price_block}",
+                        ]
+                    )
+                )
             except KeyError:
-                pass
-            schedule += new_concert
-        return schedule
+                continue
+
+        return "\n\n".join(lines) if lines else "Концерты не найдены"

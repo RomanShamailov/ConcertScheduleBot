@@ -1,5 +1,5 @@
 import asyncio
-from .infrastructure.start_for_test import start
+from ConcertScheduleBot.infrastructure.start_for_test import start
 
 if __name__ == "__main__":
     # url = 'https://music.yandex.ru/playlists/lk.1f789547-5715-4a9a-bf78-52c503d9b208'
