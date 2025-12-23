@@ -62,7 +62,7 @@ def test_concerts_to_schedule_happy_path():
 
 
 def test_concerts_to_schedule_with_invalid_concert():
-    concerts = [{}]  # KeyError внутри
+    concerts = [{}]
 
     schedule = ConcertsToScheduleConvertor(concerts).schedule()
 
