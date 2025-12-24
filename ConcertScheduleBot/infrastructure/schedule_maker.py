@@ -11,9 +11,17 @@ from ConcertScheduleBot.adapters.conversions_for_parsing import (
 
 
 class ScheduleMaker:
-    def __init__(self, playlist_url: str, session: aiohttp.ClientSession) -> None:
+    def __init__(
+        self,
+        playlist_url: str,
+        session: aiohttp.ClientSession,
+        include_similar: bool = False,
+        similar_limit_per_artist: int = 5,
+    ) -> None:
         self.playlist_url_ = playlist_url
         self.parser_ = Parser(session)
+        self.include_similar_ = include_similar
+        self.similar_limit_per_artist_ = similar_limit_per_artist
 
     async def schedule(self) -> str:
         api_url: str | None = PlaylistUrlToApiConvertor(self.playlist_url_).api_url()
@@ -38,8 +46,20 @@ class ScheduleMaker:
             return tracks
         await asyncio.sleep(RequestData.req_delay)
         artists_ids: set[int] = TracksToArtistsIdsConvertor(tracks).artists_ids()
+
+        all_artists_ids = artists_ids.copy() #TODO: надо ли копировать?
+        if self.include_similar_:
+            similar_artists_ids = await self.parser_.get_similar_artists_from_artists(
+                artists_ids,
+                RequestData.req_data[1]["cookies"],
+                RequestData.req_data[1]["headers"],
+                limit_per_artist=self.similar_limit_per_artist_,
+            )
+            all_artists_ids.update(similar_artists_ids)
+            await asyncio.sleep(RequestData.req_delay)
+
         concerts: list[dict[str, Any]] = await self.parser_.get_concerts_from_artists(
-            artists_ids,
+            all_artists_ids,
             RequestData.req_data[3]["cookies"],
             RequestData.req_data[3]["headers"],
         )

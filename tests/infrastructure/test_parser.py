@@ -56,3 +56,45 @@ async def test_get_concerts_from_one_artist_banned(mock_session):
     result = await parser.get_concerts_from_one_artist(1, {}, {})
 
     assert result.startswith("banned with message")
+
+@pytest.mark.asyncio
+async def test_get_similar_artists_success(mock_session):
+    response = AsyncMock()
+    response.status = 200
+    response.json.return_value = {
+        "similarArtists": [
+            {"id": 100, "name": "Artist 1"},
+            {"id": 200, "name": "Artist 2"},
+            {"id": 300, "name": "Artist 3"},
+        ]
+    }
+    mock_session.get.return_value.__aenter__.return_value = response
+
+    parser = Parser(mock_session)
+    result = await parser.get_similar_artists_from_one_artist(1, {}, {})
+
+    assert result == [100, 200, 300]
+
+@pytest.mark.asyncio
+async def test_get_similar_artists_not_found(mock_session):
+    response = AsyncMock()
+    response.status = 404
+    mock_session.get.return_value.__aenter__.return_value = response
+
+    parser = Parser(mock_session)
+    result = await parser.get_similar_artists_from_one_artist(1, {}, {})
+
+    assert result == []
+
+@pytest.mark.asyncio
+async def test_get_similar_artists_empty(mock_session):
+    response = AsyncMock()
+    response.status = 200
+    response.json.return_value = {}
+    mock_session.get.return_value.__aenter__.return_value = response
+
+    parser = Parser(mock_session)
+    result = await parser.get_similar_artists_from_one_artist(1, {}, {})
+
+    assert result == []
+
