@@ -6,6 +6,8 @@ class UrlTemplates:
     TEMPLATES: list[str] = [
         ("https://music.yandex.ru/playlists/", "https://api.music.yandex.ru/playlist/"),
         ("https://music.yandex.ru/users/", "https://api.music.yandex.ru/users/"),
+        ("https://music.yandex.com/playlists/", "https://api.music.yandex.ru/playlist/"),
+        ("https://music.yandex.com/users/", "https://api.music.yandex.ru/users/"),
     ]
 
 
@@ -36,7 +38,7 @@ class ConcertsToScheduleConvertor:
     def __init__(
         self,
         concerts: list[dict[str, Any]],
-        similar_concerts: list[dict[str, Any]] | None = None,
+        similar_concerts: list[dict[str, Any]] | None,
     ):
         self.concerts_ = concerts
         self.similar_concerts_ = similar_concerts
@@ -58,6 +60,7 @@ class ConcertsToScheduleConvertor:
                         f"Цена: {concert['minPrice']['value']} "
                         f"{concert['minPrice']['currency']}"
                     )
+                link = f"Ссылка: https://music.yandex.ru/concert/{concert['concert']['id']}"
 
                 lines.append(
                     "\n".join(
@@ -66,6 +69,7 @@ class ConcertsToScheduleConvertor:
                             f"🎤 {concert_title}",
                             f"🌍 {city}",
                             f"💵 {price_block}",
+                            f"🔗 {link}"
                         ]
                     )
                 )
