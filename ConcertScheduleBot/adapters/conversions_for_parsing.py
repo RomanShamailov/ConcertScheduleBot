@@ -33,16 +33,23 @@ class TracksToArtistsIdsConvertor:
 
 
 class ConcertsToScheduleConvertor:
-    def __init__(self, concerts):
+    def __init__(
+        self,
+        concerts: list[dict[str, Any]],
+        similar_concerts: list[dict[str, Any]] | None = None,
+    ):
         self.concerts_ = concerts
+        self.similar_concerts_ = similar_concerts
 
-    def schedule(self) -> str:
-        lines = ["Список концертов"]
+    def _format_section(
+        self, concerts: list[dict[str, Any]], title: str
+    ) -> list[str]:
+        lines: list[str] = []
 
-        for concert in self.concerts_:
+        for concert in concerts:
             try:
                 dt = datetime.fromisoformat(concert["concert"]["datetime"])
-                title = concert["concert"]["concertTitle"]
+                concert_title = concert["concert"]["concertTitle"]
                 city = concert["concert"]["city"]
 
                 price_block = "Цена: неизвестна"
@@ -56,7 +63,7 @@ class ConcertsToScheduleConvertor:
                     "\n".join(
                         [
                             f"🕒 {dt:%d.%m.%Y %H:%M}",
-                            f"🎤 {title}",
+                            f"🎤 {concert_title}",
                             f"🌍 {city}",
                             f"💵 {price_block}",
                         ]
@@ -65,4 +72,27 @@ class ConcertsToScheduleConvertor:
             except KeyError:
                 continue
 
-        return "\n\n".join(lines) if lines else "Концерты не найдены"
+        if lines:
+            return [title] + lines
+        return []
+
+    def schedule(self) -> str:
+        sections: list[str] = []
+
+        main_section = self._format_section(
+            self.concerts_, "🎵 Концерты артистов из плейлиста"
+        )
+        if main_section:
+            sections.append("\n\n".join(main_section))
+
+        if self.similar_concerts_:
+            similar_section = self._format_section(
+                self.similar_concerts_, "✨ Вам может понравиться"
+            )
+            if similar_section:
+                sections.append("\n\n".join(similar_section))
+
+        if sections:
+            separator = "\n\n" + "═" * 35 + "\n\n"
+            return separator.join(sections)
+        return "Концерты не найдены"
