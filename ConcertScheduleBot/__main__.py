@@ -1,8 +1,43 @@
 import asyncio
 from ConcertScheduleBot.infrastructure.start_for_test import start
 
+from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.filters import CommandStart
+from aiogram.types import Message
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+TOKEN = os.getenv("BOT_TOKEN")
+if not TOKEN:
+    raise RuntimeError("BOT_TOKEN is not set")
+
+dp = Dispatcher()
+
+
+@dp.message(~CommandStart())
+async def command_url_handler(message: Message) -> None:
+    """
+    This handler receives messages with `/start` command
+    """
+    schedule: str = await start(message.text)
+    await message.reply(schedule)
+
+
+@dp.message(CommandStart())
+async def command_start_handler(message: Message) -> None:
+    """
+    This handler receives messages with `/start` command
+    """
+    await message.answer("Привет! Отправь мне ссылку на плейлист и я составлю расписание концертов твоих артистов.")
+
+
+async def main() -> None:
+    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    # url = 'https://music.yandex.ru/playlists/lk.1f789547-5715-4a9a-bf78-52c503d9b208'
-    url = "https://music.yandex.ru/playlists/ps.6dfdcc04-515a-41dd-aefc-ab5267c4dbe0"
-    # url = 'https://music.yandex.ru/users/jakovlew.c/playlists/1151?ref_id=3AE37147-6DCA-40D9-9D02-E3737916230F&utm_medium=copy_link'
-    asyncio.run(start(url))
+    asyncio.run(main())
