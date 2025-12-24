@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-os.environ["BOT_TOKEN"] = "TEST_TOKEN"
 TOKEN = os.getenv("BOT_TOKEN")
 if not TOKEN:
     raise RuntimeError("BOT_TOKEN is not set")
