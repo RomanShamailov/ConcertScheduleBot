@@ -33,7 +33,7 @@ class Parser:
         cookies: dict[str, Any],
         headers: dict[str, Any],
     ) -> list[dict[str, Any]] | str:
-        data = [("trackIds", f"{track['id']}") for track in tracks_ids] #TODO: мне не нравится нейминг
+        data = [("trackIds", f"{track['id']}") for track in tracks_ids]
         data.append(("removeDuplicates", "false"))
         data.append(("withProgress", "False"))
         async with self.session_.post(
@@ -48,7 +48,8 @@ class Parser:
         self, artist_id: int, cookies: dict[str, Any], headers: dict[str, Any]
     ) -> list[dict[str, Any]] | str:
         async with self.session_.get(
-            url=f"https://api.music.yandex.ru/artists/{artist_id}/blocks/artist-concerts",
+            url=f"https://api.music.yandex.ru/artists/\
+                {artist_id}/blocks/artist-concerts",
             cookies=cookies,
             headers=headers,
         ) as response:
@@ -76,7 +77,6 @@ class Parser:
             except (KeyError, TypeError):
                 return []
 
-
     async def get_similar_artists_from_artists(
         self,
         artists: set[int],
@@ -84,38 +84,42 @@ class Parser:
         headers: dict[str, Any],
         limit_per_artist: int = 5,
     ) -> set[int]:
-        tasks: list[asyncio.Task] = []
+        tasks: list[asyncio.Task[list[int]]] = []
         for artist_id in artists:
             tasks.append(
                 asyncio.create_task(
-                    self.get_similar_artists_from_one_artist(artist_id, cookies, headers)
+                    self.get_similar_artists_from_one_artist(artist_id,
+                                                             cookies, headers)
                 )
             )
             await asyncio.sleep(RequestData.req_delay)
-        similar_packs: tuple[Any] = await asyncio.gather(*tasks) #TODO: может надо подождать?
+        similar_packs: list[list[int]] = await asyncio.gather(*tasks)
         similar_ids: set[int] = set()
         for pack in similar_packs:
             if isinstance(pack, list):
                 similar_ids.update(pack[:limit_per_artist])
         return similar_ids - artists
 
-
     async def get_concerts_from_artists(
-        self, artists: set[int], cookies: dict[str, Any], headers: dict[str, Any]
+        self, artists: set[int],
+        cookies: dict[str, Any], headers: dict[str, Any]
     ) -> list[dict[str, Any]]:
-        tasks: list[asyncio.Task] = []
+        tasks: list[asyncio.Task[list[dict[str, Any]] | str]] = []
         for artist_id in artists:
             tasks.append(
                 asyncio.create_task(
-                    self.get_concerts_from_one_artist(artist_id, cookies, headers)
+                    self.get_concerts_from_one_artist(artist_id,
+                                                      cookies, headers)
                 )
             )
             await asyncio.sleep(RequestData.req_delay)
-        concerts_packs: tuple[Any] = await asyncio.gather(*tasks)
+        concerts_packs: list[list[dict[str, Any]] | str] = \
+            await asyncio.gather(*tasks)
         concerts: list[dict[str, Any]] = []
         for pack in concerts_packs:
             if isinstance(pack, list):
                 concerts.extend(pack)
         return sorted(
-            concerts, key=lambda x: datetime.fromisoformat(x["concert"]["datetime"])
+            concerts, key=lambda x:
+                datetime.fromisoformat(x["concert"]["datetime"])
         )

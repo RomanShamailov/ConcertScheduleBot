@@ -9,7 +9,8 @@ async def start(
     progress_callback: Callable[[int, str], Awaitable[None]] | None = None,
 ) -> str:
     if schedule_maker is None:
-        schedule_maker = ScheduleMaker(playlist_url=playlist_url, session=aiohttp.ClientSession())
+        schedule_maker = ScheduleMaker(playlist_url=playlist_url,
+                                       session=aiohttp.ClientSession())
     else:
         schedule_maker.playlist_url_ = playlist_url
     return await schedule_maker.schedule(progress_callback=progress_callback)

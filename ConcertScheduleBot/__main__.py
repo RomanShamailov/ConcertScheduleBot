@@ -13,9 +13,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.getenv("BOT_TOKEN")
-if not TOKEN:
+token_value = os.getenv("BOT_TOKEN")
+if token_value is None:
     raise RuntimeError("BOT_TOKEN is not set")
+TOKEN: str = token_value
 
 dp = Dispatcher()
 TOGGLE_OFF_TEXT = "Выключить рекомендации"
@@ -53,7 +54,8 @@ async def toggle_recommendations(message: Message) -> None:
         else "Рекомендации отключены."
     )
     await message.answer(
-        status_text, reply_markup=user_keyboard(schedule_maker.include_similar_)
+        status_text,
+        reply_markup=user_keyboard(schedule_maker.include_similar_)
     )
 
 
@@ -100,7 +102,8 @@ async def command_url_handler(message: Message) -> None:
 async def command_start_handler(message: Message) -> None:
     schedule_maker = get_schedule_maker(get_user_id(message))
     await message.answer(
-        "Привет! Отправь мне ссылку на плейлист и я составлю расписание концертов твоих артистов.",
+        "Привет! Отправь мне ссылку на плейлист и я \
+            составлю расписание концертов твоих артистов.",
         reply_markup=user_keyboard(schedule_maker.include_similar_),
     )
 
@@ -117,7 +120,8 @@ async def on_shutdown() -> None:
 
 
 async def main() -> None:
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(token=TOKEN,
+              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
 
 

@@ -38,17 +38,21 @@ class ScheduleMaker:
         await self._report_progress(progress_callback, 0, "Проверяю ссылку")
         api_url: str | None = PlaylistUrlToApiConvertor(self.playlist_url_).api_url()
         if api_url is None:
-            await self._report_progress(
-                progress_callback, 100, "Ошибка"
-            )
+            await self._report_progress(progress_callback, 100, "Ошибка")
             return "Кажется, это не ссылка на плейлист. Попробуй ещё раз."
-        tracks_ids: (
-            list[dict[str, Any]] | str
-        ) = await self.parser_.get_tracks_ids_list_from_playlist(
-            api_url,
-            RequestData.req_data[0]["cookies"],
-            RequestData.req_data[0]["headers"],
+        tracks_ids: list[dict[str, Any]] | str = (
+            await self.parser_.get_tracks_ids_list_from_playlist(
+                api_url,
+                RequestData.req_data[0]["cookies"],
+                RequestData.req_data[0]["headers"],
+            )
         )
+        if isinstance(tracks_ids, str):
+            await self._report_progress(progress_callback, 100, "Ошибка")
+            return tracks_ids
+        if not tracks_ids:
+            await self._report_progress(progress_callback, 100, "Плейлист пуст")
+            return "Плейлист пуст. Добавь треки и пришли ссылку снова."
         await self._report_progress(progress_callback, 20, "Получаю треки плейлиста")
         await asyncio.sleep(RequestData.req_delay)
         tracks = await self.parser_.get_tracks_from_tracksids(
@@ -56,12 +60,17 @@ class ScheduleMaker:
             RequestData.req_data[2]["cookies"],
             RequestData.req_data[2]["headers"],
         )
+        if isinstance(tracks, str):
+            await self._report_progress(progress_callback, 100, "Ошибка")
+            return tracks
         await self._report_progress(progress_callback, 40, "Определяю артистов")
         await asyncio.sleep(RequestData.req_delay)
         artists_ids: set[int] = TracksToArtistsIdsConvertor(tracks).artists_ids()
-        similar_artists_ids: set[int] | None = None
+        similar_artists_ids: set[int] = set()
         if self.include_similar_:
-            await self._report_progress(progress_callback, 55, "Собираю похожих артистов")
+            await self._report_progress(
+                progress_callback, 55, "Собираю похожих артистов"
+            )
             similar_artists_ids = await self.parser_.get_similar_artists_from_artists(
                 artists_ids,
                 RequestData.req_data[1]["cookies"],
@@ -76,8 +85,8 @@ class ScheduleMaker:
             RequestData.req_data[3]["headers"],
         )
         similar_concerts: list[dict[str, Any]] | None = None
-        if self.include_similar_:
-            similar_concerts: list[dict[str, Any]] = await self.parser_.get_concerts_from_artists(
+        if self.include_similar_ and similar_artists_ids:
+            similar_concerts = await self.parser_.get_concerts_from_artists(
                 similar_artists_ids,
                 RequestData.req_data[3]["cookies"],
                 RequestData.req_data[3]["headers"],
