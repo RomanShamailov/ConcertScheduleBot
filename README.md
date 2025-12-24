@@ -37,3 +37,6 @@
 
 ## Ссылка на бота
 @concert_schedule_bot
+
+## Ссылка на репозиторий
+https://github.com/RomanShamailov/ConcertScheduleBot
