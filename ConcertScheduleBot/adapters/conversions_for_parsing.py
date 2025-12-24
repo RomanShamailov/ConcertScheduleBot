@@ -6,7 +6,10 @@ class UrlTemplates:
     TEMPLATES: list[str] = [
         ("https://music.yandex.ru/playlists/", "https://api.music.yandex.ru/playlist/"),
         ("https://music.yandex.ru/users/", "https://api.music.yandex.ru/users/"),
-        ("https://music.yandex.com/playlists/", "https://api.music.yandex.ru/playlist/"),
+        (
+            "https://music.yandex.com/playlists/",
+            "https://api.music.yandex.ru/playlist/",
+        ),
         ("https://music.yandex.com/users/", "https://api.music.yandex.ru/users/"),
     ]
 
@@ -43,9 +46,7 @@ class ConcertsToScheduleConvertor:
         self.concerts_ = concerts
         self.similar_concerts_ = similar_concerts
 
-    def _format_section(
-        self, concerts: list[dict[str, Any]], title: str
-    ) -> list[str]:
+    def _format_section(self, concerts: list[dict[str, Any]], title: str) -> list[str]:
         lines: list[str] = []
 
         for concert in concerts:
@@ -69,7 +70,7 @@ class ConcertsToScheduleConvertor:
                             f"🎤 {concert_title}",
                             f"🌍 {city}",
                             f"💵 {price_block}",
-                            f"🔗 {link}"
+                            f"🔗 {link}",
                         ]
                     )
                 )

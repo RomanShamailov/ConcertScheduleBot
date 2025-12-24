@@ -46,6 +46,7 @@ def test_concerts_to_schedule_happy_path():
     concerts = [
         {
             "concert": {
+                "id": 123,
                 "datetime": "2025-01-01T20:00:00",
                 "concertTitle": "Дора",
                 "city": "Москва",
@@ -54,7 +55,7 @@ def test_concerts_to_schedule_happy_path():
         }
     ]
 
-    schedule = ConcertsToScheduleConvertor(concerts).schedule()
+    schedule = ConcertsToScheduleConvertor(concerts, None).schedule()
 
     assert "🎵 Концерты артистов из плейлиста" in schedule
     assert "🕒 01.01.2025 20:00" in schedule
@@ -64,19 +65,22 @@ def test_concerts_to_schedule_happy_path():
 
 
 def test_concerts_to_schedule_with_similar():
-    """Тест вывода с секцией рекомендаций."""
+    """Проверка вывода основной секции и секции рекомендаций."""
     concerts = [
         {
             "concert": {
+                "id": 1,
                 "datetime": "2025-01-01T20:00:00",
                 "concertTitle": "Дора",
                 "city": "Москва",
             },
         }
     ]
+
     similar_concerts = [
         {
             "concert": {
+                "id": 2,
                 "datetime": "2025-02-15T19:00:00",
                 "concertTitle": "Macan",
                 "city": "Санкт-Петербург",
@@ -86,7 +90,6 @@ def test_concerts_to_schedule_with_similar():
 
     schedule = ConcertsToScheduleConvertor(concerts, similar_concerts).schedule()
 
-    # Проверяем обе секции
     assert "🎵 Концерты артистов из плейлиста" in schedule
     assert "🎤 Дора" in schedule
     assert "✨ Вам может понравиться" in schedule
@@ -96,6 +99,6 @@ def test_concerts_to_schedule_with_similar():
 def test_concerts_to_schedule_with_invalid_concert():
     concerts = [{}]
 
-    schedule = ConcertsToScheduleConvertor(concerts).schedule()
+    schedule = ConcertsToScheduleConvertor(concerts, None).schedule()
 
     assert schedule == "Концерты не найдены"
