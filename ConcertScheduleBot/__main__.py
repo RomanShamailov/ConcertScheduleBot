@@ -25,6 +25,7 @@ async def command_url_handler(message: Message) -> None:
     """
     schedule: str = await start(message.text)
     await message.reply(schedule)
+    await message.answer("Я вновь готов составить расписание, только отправь мне ссылку.")
 
 
 @dp.message(CommandStart())

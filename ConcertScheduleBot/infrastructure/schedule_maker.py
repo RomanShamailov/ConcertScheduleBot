@@ -26,7 +26,7 @@ class ScheduleMaker:
     async def schedule(self) -> str:
         api_url: str | None = PlaylistUrlToApiConvertor(self.playlist_url_).api_url()
         if api_url is None:
-            return "bad url"
+            return "Кажется, это не ссылка на плейлист. Попробуй ещё раз."
         tracks_ids: (
             list[dict[str, Any]] | str
         ) = await self.parser_.get_tracks_ids_list_from_playlist(
